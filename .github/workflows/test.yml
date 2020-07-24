@@ -19,8 +19,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ./
+
+      - name: Diff test
+        uses: ./
         with:
-          base-resultset-path: .github/fixtures/diff/resultset1.json
-          head-resultset-path: .github/fixtures/diff/resultset1.json
+          base-resultset-path: .github/fixtures/resultset1.json
+          head-resultset-path: .github/fixtures/resultset2.json
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: No diff test
+        uses: ./
+        with:
+          base-resultset-path: .github/fixtures/resultset1.json
+          head-resultset-path: .github/fixtures/resultset1.json
           token: ${{ secrets.GITHUB_TOKEN }}
