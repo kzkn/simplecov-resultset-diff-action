@@ -105,7 +105,7 @@ export function getCoverageDiff(
   const diff: FileCoverageDiff[] = []
   const cov1Files = cov1.filesMap()
   const cov2Files = cov2.filesMap()
-  for (const {filename} of cov1.files) {
+  for (const filename of mergeFilenames(cov1, cov2)) {
     const fcov1 = cov1Files.get(filename)
     const fcov2 = cov2Files.get(filename)
     if (isDifference(fcov1, fcov2)) {
@@ -113,6 +113,13 @@ export function getCoverageDiff(
     }
   }
   return diff
+}
+
+function mergeFilenames(cov1: Coverage, cov2: Coverage): string[] {
+  const files1 = cov1.files.map(f => f.filename)
+  const files2 = cov2.files.map(f => f.filename)
+  const files = new Set<string>([...files1, ...files2])
+  return Array.from(files)
 }
 
 function isDifference(cov1?: FileCoverage, cov2?: FileCoverage): boolean {

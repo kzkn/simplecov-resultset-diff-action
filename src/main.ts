@@ -30,8 +30,8 @@ function formatDiffItem({
   from: number | null
   to: number | null
 }): string {
-  const f = from !== null ? `${String(from)}%` : '(empty)'
-  const t = to !== null ? `${String(to)}%` : '(empty)'
+  const f = from !== null ? `${String(from)}%` : '(not exist)'
+  const t = to !== null ? `${String(to)}%` : '(not exist)'
   const d =
     from !== null && to !== null
       ? ` (${Math.sign(to - from) < 0 ? '-' : '+'}${Math.abs(to - from)}%)`
