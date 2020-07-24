@@ -6412,7 +6412,7 @@ function linesCoverage(coverage) {
 function branchesCoverages(coverage) {
     const conditions = Object.keys(coverage);
     if (conditions.length === 0) {
-        return 100;
+        return null;
     }
     let total = 0;
     let covered = 0;
