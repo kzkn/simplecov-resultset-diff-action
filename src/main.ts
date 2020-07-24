@@ -45,18 +45,19 @@ async function run(): Promise<void> {
 
     const diff = getCoverageDiff(coverages.base, coverages.head)
 
-    let message: string
+    let content: string
     if (diff.length === 0) {
-      message = 'No differences'
+      content = 'No differences'
     } else {
-      const table = markdownTable([
+      content = markdownTable([
         ['Filename', 'Lines', 'Branches'],
         ...diff.map(d => [d.filename, String(d.lines), String(d.branches)])
       ])
-      message = `## Coverage difference
-${table}
-`
     }
+
+    const message = `## Coverage difference
+${content}
+`
 
     /**
      * Publish a comment in the PR with the diff result.
