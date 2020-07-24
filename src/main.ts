@@ -65,8 +65,8 @@ ${table}
 
     const pullRequestId = github.context.issue.number
     if (!pullRequestId) {
-      console.warn('Cannot find the PR id.')
-      console.log(message)
+      core.warning('Cannot find the PR id.')
+      core.info(message)
       return
     }
 
