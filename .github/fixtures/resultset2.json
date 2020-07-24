@@ -64,6 +64,26 @@
             "[:then, 8, 11, 4, 11, 28]": 0
           }
         }
+      },
+      "qux.rb": {
+        "lines": [
+          1,
+          null,
+          1,
+          0,
+          null,
+          0,
+          0,
+          0,
+          null,
+          0,
+          0,
+          0,
+          null,
+          null
+        ],
+        "branches": {
+        }
       }
     },
     "timestamp": 1595577079
