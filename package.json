@@ -1,7 +1,7 @@
 {
   "name": "simplecov-resultset-diff-action",
   "version": "0.0.1",
-  "private": false,
+  "private": true,
   "description": "SimpleCov resultset diff action",
   "main": "lib/main.js",
   "scripts": {
