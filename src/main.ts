@@ -72,6 +72,9 @@ async function run(): Promise<void> {
       head: new Coverage(resultsets.head)
     }
 
+    coverages.base.trimWorkspacePath(process.env.GITHUB_WORKSPACE!)
+    coverages.head.trimWorkspacePath(process.env.GITHUB_WORKSPACE!)
+
     const diff = getCoverageDiff(coverages.base, coverages.head)
 
     let content: string
