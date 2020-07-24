@@ -615,7 +615,7 @@ function parseResultset(resultsetPath) {
 function formatDiffItem({ from, to }) {
     const f = from ? `${String(from)}%` : '(empty)';
     const t = to ? `${String(to)}%` : '(empty)';
-    const d = from && to ? ` (${Math.sign(to - from)}${Math.abs(to - from)}%)` : '';
+    const d = from !== null && to !== null ? ` (${Math.sign(to - from) < 0 ? '-' : '+'}${Math.abs(to - from)}%)` : '';
     return `${f} -> ${t}${d}`;
 }
 function formatDiff(diff) {
