@@ -33,7 +33,9 @@ function formatDiffItem({
   const f = from ? `${String(from)}%` : '(empty)'
   const t = to ? `${String(to)}%` : '(empty)'
   const d =
-    from && to ? ` (${Math.sign(to - from)}${Math.abs(to - from)}%)` : ''
+    from !== null && to !== null
+      ? ` (${Math.sign(to - from) < 0 ? '-' : '+'}${Math.abs(to - from)}%)`
+      : ''
   return `${f} -> ${t}${d}`
 }
 
