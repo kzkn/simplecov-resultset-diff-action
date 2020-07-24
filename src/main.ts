@@ -5,9 +5,9 @@ import * as core from '@actions/core'
 import markdownTable from 'markdown-table'
 import {ResultSet, Coverage, getCoverageDiff} from './simplecov'
 
-function doesPathExists(path: string): void {
-  if (!fs.existsSync(path)) {
-    throw new Error(`${path} does not exist!`)
+function doesPathExists(filepath: string): void {
+  if (!fs.existsSync(filepath)) {
+    throw new Error(`${filepath} does not exist!`)
   }
 }
 

@@ -27,8 +27,6 @@ type FileCoverage = {
   branches: number
 }
 
-type Diff = any
-
 function floor(n: number, digits = 0): number {
   const d = Math.pow(10, digits)
   const x = Math.floor(n * d)
@@ -54,16 +52,16 @@ function branchesCoverages(coverage: BranchCoverage): number {
 
   let total = 0
   let covered = 0
-  conditions.forEach(k => {
+  for (const k of conditions) {
     const cond = coverage[k]
-    Object.keys(cond).forEach(branch => {
+    for (const branch of Object.keys(cond)) {
       total += 1
       const hit = cond[branch]
       if (hit > 0) {
         covered += 1
       }
-    })
-  })
+    }
+  }
   return floor((covered / total) * 100, 2)
 }
 
@@ -73,14 +71,14 @@ export class Coverage {
   constructor(resultset: ResultSet) {
     const coverages = resultset['RSpec']['coverage']
     this.files = []
-    Object.keys(coverages).forEach(filename => {
+    for (const filename of Object.keys(coverages)) {
       const coverage = coverages[filename]
       this.files.push({
         filename,
         lines: linesCoverage(coverage.lines),
         branches: branchesCoverages(coverage.branches)
       })
-    })
+    }
   }
 
   trimWorkspacePath(workspacePath: string): void {
