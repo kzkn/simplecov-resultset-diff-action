@@ -6475,7 +6475,7 @@ function mergeFilenames(cov1, cov2) {
     const files1 = cov1.files.map(f => f.filename);
     const files2 = cov2.files.map(f => f.filename);
     const files = new Set([...files1, ...files2]);
-    return Array.from(files);
+    return Array.from(files).sort((a, b) => a < b ? -1 : (a > b ? 1 : 0));
 }
 function isDifference(cov1, cov2) {
     if (cov1 === cov2) {
