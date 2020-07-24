@@ -134,10 +134,16 @@ function isDifference(cov1?: FileCoverage, cov2?: FileCoverage): boolean {
   return false
 }
 
-type FileCoverageDiff = {
+export type FileCoverageDiff = {
   filename: string
-  lines: number
-  branches: number
+  lines: {
+    from: number | null
+    to: number | null
+  }
+  branches: {
+    from: number | null
+    to: number | null
+  }
 }
 
 function makeDiff(cov1?: FileCoverage, cov2?: FileCoverage): FileCoverageDiff {
@@ -146,18 +152,22 @@ function makeDiff(cov1?: FileCoverage, cov2?: FileCoverage): FileCoverageDiff {
   }
 
   if (!cov1 && cov2) {
-    return cov2
+    return {
+      filename: cov2.filename,
+      lines: {from: null, to: cov2.lines},
+      branches: {from: null, to: cov2.branches}
+    }
   }
   if (!cov2 && cov1) {
     return {
       filename: cov1.filename,
-      lines: -cov1.lines,
-      branches: -cov1.branches
+      lines: {from: cov1.lines, to: null},
+      branches: {from: cov1.branches, to: null}
     }
   }
   return {
     filename: cov1!.filename,
-    lines: cov1!.lines - cov2!.lines,
-    branches: cov1!.branches - cov2!.branches
+    lines: {from: cov1!.lines, to: cov2!.lines},
+    branches: {from: cov1!.branches, to: cov2!.branches}
   }
 }

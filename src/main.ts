@@ -3,7 +3,12 @@ import * as fs from 'fs'
 import * as github from '@actions/github'
 import * as core from '@actions/core'
 import markdownTable from 'markdown-table'
-import {ResultSet, Coverage, getCoverageDiff} from './simplecov'
+import {
+  ResultSet,
+  Coverage,
+  getCoverageDiff,
+  FileCoverageDiff
+} from './simplecov'
 
 function doesPathExists(filepath: string): void {
   if (!fs.existsSync(filepath)) {
@@ -16,6 +21,28 @@ function parseResultset(resultsetPath: string): ResultSet {
     path.resolve(process.env.GITHUB_WORKSPACE!, resultsetPath)
   )
   return JSON.parse(content.toString()) as ResultSet
+}
+
+function formatDiffItem({
+  from,
+  to
+}: {
+  from: number | null
+  to: number | null
+}): string {
+  const f = from ? `${String(from)}%` : '(empty)'
+  const t = to ? `${String(to)}%` : '(empty)'
+  const d =
+    from && to ? ` (${Math.sign(to - from)}${Math.abs(to - from)}%)` : ''
+  return `${f} -> ${t}${d}`
+}
+
+function formatDiff(diff: FileCoverageDiff): [string, string, string] {
+  return [
+    diff.filename,
+    formatDiffItem(diff.lines),
+    formatDiffItem(diff.branches)
+  ]
 }
 
 async function run(): Promise<void> {
@@ -51,7 +78,7 @@ async function run(): Promise<void> {
     } else {
       content = markdownTable([
         ['Filename', 'Lines', 'Branches'],
-        ...diff.map(d => [d.filename, String(d.lines), String(d.branches)])
+        ...diff.map(formatDiff)
       ])
     }
 
