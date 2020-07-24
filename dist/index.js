@@ -648,6 +648,8 @@ function run() {
                 base: new simplecov_1.Coverage(resultsets.base),
                 head: new simplecov_1.Coverage(resultsets.head)
             };
+            coverages.base.trimWorkspacePath(process.env.GITHUB_WORKSPACE);
+            coverages.head.trimWorkspacePath(process.env.GITHUB_WORKSPACE);
             const diff = simplecov_1.getCoverageDiff(coverages.base, coverages.head);
             let content;
             if (diff.length === 0) {
