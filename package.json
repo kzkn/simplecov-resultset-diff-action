@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
-  "private": true,
-  "description": "TypeScript template action",
+  "name": "simplecov-resultset-diff-action",
+  "version": "0.0.1",
+  "private": false,
+  "description": "SimpleCov resultset diff action",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/kzkn/simplecov-resultset-diff-action.git"
   },
   "keywords": [
     "actions",
-    "node",
-    "setup"
+    "ruby",
+    "simplecov"
   ],
-  "author": "",
+  "author": "Kazuki Nishikawa",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.4"
