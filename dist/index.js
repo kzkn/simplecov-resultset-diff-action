@@ -613,9 +613,11 @@ function parseResultset(resultsetPath) {
     return JSON.parse(content.toString());
 }
 function formatDiffItem({ from, to }) {
-    const f = from ? `${String(from)}%` : '(empty)';
-    const t = to ? `${String(to)}%` : '(empty)';
-    const d = from !== null && to !== null ? ` (${Math.sign(to - from) < 0 ? '-' : '+'}${Math.abs(to - from)}%)` : '';
+    const f = from !== null ? `${String(from)}%` : '(empty)';
+    const t = to !== null ? `${String(to)}%` : '(empty)';
+    const d = from !== null && to !== null
+        ? ` (${Math.sign(to - from) < 0 ? '-' : '+'}${Math.abs(to - from)}%)`
+        : '';
     return `${f} -> ${t}${d}`;
 }
 function formatDiff(diff) {
