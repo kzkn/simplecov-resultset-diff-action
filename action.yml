@@ -1,11 +1,16 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'SimpleCov resultset difference'
+description: 'Creates a comment in the pull-request comparing two SimpleCov resultset files.'
+author: Kazuki Nishikawa
 inputs:
-  milliseconds: # change this
+  base-resultset-path:
+    description: 'SimpleCov generated "resultset.json" file path from the base branch'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  head-resultset-path:
+    description: 'SimpleCov generated "resultset.json" file path from the head branch'
+    required: true
+  token:
+    description: 'Github generated token'
+    required: true
 runs:
   using: 'node12'
   main: 'dist/index.js'
