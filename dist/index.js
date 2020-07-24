@@ -653,7 +653,9 @@ ${table}
             const octokit = github.getOctokit(core.getInput('token'));
             const pullRequestId = github.context.issue.number;
             if (!pullRequestId) {
-                throw new Error('Cannot find the PR id.');
+                core.warning('Cannot find the PR id.');
+                core.info(message);
+                return;
             }
             yield octokit.issues.createComment({
                 owner: github.context.repo.owner,
