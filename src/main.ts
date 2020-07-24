@@ -65,7 +65,9 @@ ${table}
 
     const pullRequestId = github.context.issue.number
     if (!pullRequestId) {
-      throw new Error('Cannot find the PR id.')
+      console.warn('Cannot find the PR id.')
+      console.log(message)
+      return
     }
 
     await octokit.issues.createComment({
