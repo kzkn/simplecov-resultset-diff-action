@@ -100,7 +100,10 @@ export class Coverage {
   }
 }
 
-export function getCoverageDiff(cov1: Coverage, cov2: Coverage): FileCoverageDiff[] {
+export function getCoverageDiff(
+  cov1: Coverage,
+  cov2: Coverage
+): FileCoverageDiff[] {
   const diff: FileCoverageDiff[] = []
   const cov1Files = cov1.filesMap()
   const cov2Files = cov2.filesMap()
@@ -115,11 +118,21 @@ export function getCoverageDiff(cov1: Coverage, cov2: Coverage): FileCoverageDif
 }
 
 function isDifference(cov1?: FileCoverage, cov2?: FileCoverage): boolean {
-  if (cov1 === cov2) { return false }
-  if (cov1 && !cov2) { return true }
-  if (!cov1 && cov2) { return true }
-  if (cov1!.lines !== cov2!.lines) { return true }
-  if (cov1!.branches !== cov2!.branches) { return true }
+  if (cov1 === cov2) {
+    return false
+  }
+  if (cov1 && !cov2) {
+    return true
+  }
+  if (!cov1 && cov2) {
+    return true
+  }
+  if (cov1!.lines !== cov2!.lines) {
+    return true
+  }
+  if (cov1!.branches !== cov2!.branches) {
+    return true
+  }
   return false
 }
 
@@ -134,8 +147,16 @@ function makeDiff(cov1?: FileCoverage, cov2?: FileCoverage): FileCoverageDiff {
     throw new Error('no coverages')
   }
 
-  if (!cov1 && cov2) { return cov2 }
-  if (!cov2 && cov1) { return { filename: cov1.filename, lines: -cov1.lines, branches: -cov1.branches } }
+  if (!cov1 && cov2) {
+    return cov2
+  }
+  if (!cov2 && cov1) {
+    return {
+      filename: cov1.filename,
+      lines: -cov1.lines,
+      branches: -cov1.branches
+    }
+  }
   return {
     filename: cov1!.filename,
     lines: cov1!.lines - cov2!.lines,

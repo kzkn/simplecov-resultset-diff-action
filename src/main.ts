@@ -12,7 +12,9 @@ function doesPathExists(path: string): void {
 }
 
 function parseResultset(resultsetPath: string): ResultSet {
-  const content = fs.readFileSync(path.resolve(process.env.GITHUB_WORKSPACE!, resultsetPath))
+  const content = fs.readFileSync(
+    path.resolve(process.env.GITHUB_WORKSPACE!, resultsetPath)
+  )
   return JSON.parse(content.toString()) as ResultSet
 }
 
@@ -38,7 +40,7 @@ async function run(): Promise<void> {
 
     const coverages = {
       base: new Coverage(resultsets.base),
-      head: new Coverage(resultsets.head),
+      head: new Coverage(resultsets.head)
     }
 
     const diff = getCoverageDiff(coverages.base, coverages.head)
@@ -48,18 +50,14 @@ async function run(): Promise<void> {
       message = 'No differences'
     } else {
       const table = markdownTable([
-        [
-          'Filename',
-          'Lines',
-          'Branches'
-        ],
+        ['Filename', 'Lines', 'Branches'],
         ...diff.map(d => [d.filename, String(d.lines), String(d.branches)])
       ])
       message = `## Coverage difference
 ${table}
 `
     }
-    
+
     /**
      * Publish a comment in the PR with the diff result.
      */
@@ -76,8 +74,7 @@ ${table}
       issue_number: pullRequestId,
       body: message
     })
-  }
-  catch (error) {
+  } catch (error) {
     core.setFailed(error.message)
   }
 }
