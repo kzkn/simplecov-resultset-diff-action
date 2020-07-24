@@ -24,7 +24,7 @@ type BranchCoverage = {
 type FileCoverage = {
   filename: string
   lines: number
-  branches: number
+  branches: number | null
 }
 
 function floor(n: number, digits = 0): number {
@@ -44,10 +44,10 @@ function linesCoverage(coverage: LineCoverage): number {
   return floor((covered / rows) * 100, 2)
 }
 
-function branchesCoverages(coverage: BranchCoverage): number {
+function branchesCoverages(coverage: BranchCoverage): number | null {
   const conditions = Object.keys(coverage)
   if (conditions.length === 0) {
-    return 100
+    return null
   }
 
   let total = 0
