@@ -612,6 +612,19 @@ function parseResultset(resultsetPath) {
     const content = fs.readFileSync(path.resolve(process.env.GITHUB_WORKSPACE, resultsetPath));
     return JSON.parse(content.toString());
 }
+function formatDiffItem({ from, to }) {
+    const f = from ? `${String(from)}%` : '(empty)';
+    const t = to ? `${String(to)}%` : '(empty)';
+    const d = from && to ? ` (${Math.sign(to - from)}${Math.abs(to - from)}%)` : '';
+    return `${f} -> ${t}${d}`;
+}
+function formatDiff(diff) {
+    return [
+        diff.filename,
+        formatDiffItem(diff.lines),
+        formatDiffItem(diff.branches)
+    ];
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -634,19 +647,19 @@ function run() {
                 head: new simplecov_1.Coverage(resultsets.head)
             };
             const diff = simplecov_1.getCoverageDiff(coverages.base, coverages.head);
-            let message;
+            let content;
             if (diff.length === 0) {
-                message = 'No differences';
+                content = 'No differences';
             }
             else {
-                const table = markdown_table_1.default([
+                content = markdown_table_1.default([
                     ['Filename', 'Lines', 'Branches'],
-                    ...diff.map(d => [d.filename, String(d.lines), String(d.branches)])
+                    ...diff.map(formatDiff)
                 ]);
-                message = `## Coverage difference
-${table}
-`;
             }
+            const message = `## Coverage difference
+${content}
+`;
             /**
              * Publish a comment in the PR with the diff result.
              */
@@ -6477,19 +6490,23 @@ function makeDiff(cov1, cov2) {
         throw new Error('no coverages');
     }
     if (!cov1 && cov2) {
-        return cov2;
+        return {
+            filename: cov2.filename,
+            lines: { from: null, to: cov2.lines },
+            branches: { from: null, to: cov2.branches }
+        };
     }
     if (!cov2 && cov1) {
         return {
             filename: cov1.filename,
-            lines: -cov1.lines,
-            branches: -cov1.branches
+            lines: { from: cov1.lines, to: null },
+            branches: { from: cov1.branches, to: null }
         };
     }
     return {
         filename: cov1.filename,
-        lines: cov1.lines - cov2.lines,
-        branches: cov1.branches - cov2.branches
+        lines: { from: cov1.lines, to: cov2.lines },
+        branches: { from: cov1.branches, to: cov2.branches }
     };
 }
 
