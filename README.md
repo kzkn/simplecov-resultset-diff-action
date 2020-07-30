@@ -65,7 +65,7 @@ Now you can do the exact same thing, but for the base branch. Note the checkout 
     name: 'Build base'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         ## Here we do not checkout the current branch, but we checkout the base branch.
         ref: ${{ github.base_ref }}
@@ -109,6 +109,46 @@ Now, in a new job we can retrieve both of our saved resultset from the artifacts
 ```
 
 That's it! When the compare job will be executed, it will post a comment in the current pull-request with the difference between the two resultset files.
+
+## Cache .resultset.json
+
+You can use the cached resultset file for comparison. To cache the resultset file which is generated from the `build-base` step, it will save the build time (if your `base` ref will not change constantly).
+
+```yml
+  build-base:
+    name: 'Build base'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.base_ref }}
+
+    - id: base-ref-commit
+      run: echo "::set-output name=revision::`git rev-parse HEAD`"
+
+    - name: simplecov resultset cache
+      id: simplecov-resultset
+      uses:  actions/cache@v2
+      with:
+        path: coverage/.resultset.json
+        key: simplecov-resultset-${{ steps.base-ref-commit.outputs.revision }}
+
+    - uses: ruby/setup-ruby@v1
+      if: steps.simplecov-resultset.outputs.cache-hit != 'true'
+      with:
+        bundler-cache: true
+
+    - name: Run test
+      if: steps.simplecov-resultset.outputs.cache-hit != 'true'
+      run: bundle exec rspec
+
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: base-result
+        path: coverage/.resultset.json
+```
 
 ## License
 
