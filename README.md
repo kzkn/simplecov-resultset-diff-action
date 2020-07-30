@@ -112,7 +112,7 @@ That's it! When the compare job will be executed, it will post a comment in the 
 
 ## Cache .resultset.json
 
-You can use the cached resultset file for comparison. To cache the resultset file which is generated from the `build-base` step, it will save the build time (if your `base` ref will not change constantly).
+You can use the cached resultset file for comparison. To cache the resultset file that generated from the `build-base` job, it will save the build time.
 
 ```yml
   build-base:
