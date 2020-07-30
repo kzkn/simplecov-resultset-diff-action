@@ -19,10 +19,26 @@ function doesPathExists(filepath: string): void {
 }
 
 function parseResultset(resultsetPath: string): ResultSet {
-  const content = fs.readFileSync(
-    path.resolve(WORKSPACE, resultsetPath)
-  )
+  const content = fs.readFileSync(path.resolve(WORKSPACE, resultsetPath))
   return JSON.parse(content.toString()) as ResultSet
+}
+
+function truncPercentage(n: number): number {
+  return Math.sign(n) * (Math.trunc(Math.abs(n) * 10) / 10)
+}
+
+function badgeUrl(from: number, to: number): string {
+  const top =
+    'https://raw.githubusercontent.com/kzkn/simplecov-resultset-diff-action/main/assets/'
+  const diff = Math.abs(truncPercentage(to - from))
+  if (diff === 0) {
+    return `${top}/0.svg`
+  } else {
+    const dir = Math.sign(to - from) < 0 ? 'down' : 'up'
+    const n = Math.trunc(diff)
+    const m = (diff * 10) % 10
+    return `${top}/${dir}/${n}/${n}.${m}.svg`
+  }
 }
 
 function formatDiffItem({
@@ -32,13 +48,17 @@ function formatDiffItem({
   from: number | null
   to: number | null
 }): string {
-  const f = from !== null ? `${String(from)}%` : '(not exist)'
-  const t = to !== null ? `${String(to)}%` : '(not exist)'
-  const d =
-    from !== null && to !== null
-      ? ` (${Math.sign(to - from) < 0 ? '-' : '+'}${Math.abs(to - from)}%)`
-      : ''
-  return `${f} -> ${t}${d}`
+  let p = ''
+  let badge = ''
+  if (to !== null) {
+    p = ` ${truncPercentage(to)}%`
+  }
+  if (from !== null && to !== null) {
+    badge = ` ![${truncPercentage(to - from)}%](${badgeUrl(from, to)})`
+  }
+  const created = from === null && to !== null ? 'NEW' : ''
+  const deleted = from !== null && to === null ? 'DELETE' : ''
+  return `${created}${deleted}${p}${badge}`
 }
 
 function trimWorkspacePath(filename: string): string {
