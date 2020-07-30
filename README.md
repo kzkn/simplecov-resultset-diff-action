@@ -1,101 +1,115 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# SimpleCov Resultset Diff
 
-# Create a JavaScript Action using TypeScript
+Creates a comment inside your Pull-Request with the difference between two SimpleCov resultset files.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+![Comment demo](./docs/splash.png)
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+## Usage
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+To use this Github action, in your steps you may have:
 
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
-
-Install the dependencies  
-```bash
-$ npm install
-```
-
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
+```yml
+uses: kzkn/simplecov-resultset-diff-action@v1
 with:
-  milliseconds: 1000
+  base-resultset-path: '/path/to/my/.resultset.json'
+  head-resultset-path: '/path/to/my/.resultset.json'
+  token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+## Inputs
 
-## Usage:
+| Inputs          | Required | Default | Description                                                                                   |
+|-----------------|----------|---------|-----------------------------------------------------------------------------------------------|
+| base-stats-path | true     |         | Path to the SimpleCov generated ".resultset.json" file from the base branch.                  |
+| head-stats-path | true     |         | Path to the SimpleCov generated "resultset.json" file from the head branch.                   |
+| token           | true     |         | Github token so the package can publish a comment in the pull-request when the diff is ready. |
 
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+## Usage example
+
+If you want to compare the coverage difference between your base branch and your pull-request head branch.
+
+You'll need to run your test and collect coverage for the head branch:
+
+```yml
+on:
+  pull_request:
+
+jobs:
+  build-head:
+    name: 'Build head'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+    - name: Run test
+      run: bundle exec rspec
+```
+
+Then we will use the Github Actions feature called "[artifacts](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/persisting-workflow-data-using-artifacts)" to store that `.resultset.json` file.
+
+```yml
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: head-result
+        path: coverage/.resultset.json
+```
+
+Now you can do the exact same thing, but for the base branch. Note the checkout step!
+
+```yml
+  build-base:
+    name: 'Build base'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        ## Here we do not checkout the current branch, but we checkout the base branch.
+        ref: ${{ github.base_ref }}
+    - uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+    - name: Run test
+      run: bundle exec rspec
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: base-result
+        path: coverage/.resultset.json
+```
+
+Now, in a new job we can retrieve both of our saved resultset from the artifacts and use this action to compare them.
+
+```yml
+  compare:
+    name: 'Compare base & head coverages'
+    runs-on: ubuntu-latest
+    needs: [build-base, build-head]
+
+    steps:
+    - name: Download base artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: base-result
+
+    - name: Download head artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: head-result
+
+    - uses: kzkn/simplecov-resultset-diff-action@v1
+      with:
+        base-resultset-path: ./base-result/.resultset.json
+        head-resultset-path: ./head-result/.resultset.json
+        token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+That's it! When the compare job will be executed, it will post a comment in the current pull-request with the difference between the two resultset files.
+
+## License
+
+MIT
