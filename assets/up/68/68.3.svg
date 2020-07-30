@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="20">
+  <g font-family="&#39;DejaVu Sans&#39;,Verdana,Geneva,sans-serif" font-size="11">
+    <path d="M0,0 L60,0 L60,20 L0,20 L0,0 Z" fill="#34d058" fill-rule="nonzero"></path>
+    <text x="50%" text-anchor="middle" fill="#010101" fill-opacity=".3">
+      <tspan y="15">+68.3%</tspan>
+    </text>
+    <text x="50%" text-anchor="middle" fill="#FFFFFF">
+      <tspan y="14">+68.3%</tspan>
+    </text>
+  </g>
+</svg>
