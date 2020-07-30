@@ -29,7 +29,7 @@ function truncPercentage(n: number): number {
 
 function badgeUrl(from: number, to: number): string {
   const top =
-    'https://raw.githubusercontent.com/kzkn/simplecov-resultset-diff-action/main/assets/'
+    'https://raw.githubusercontent.com/kzkn/simplecov-resultset-diff-action/main/assets'
   const diff = Math.abs(truncPercentage(to - from))
   if (diff === 0) {
     return `${top}/0.svg`
