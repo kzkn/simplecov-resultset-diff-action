@@ -617,7 +617,7 @@ function truncPercentage(n) {
     return Math.sign(n) * (Math.trunc(Math.abs(n) * 10) / 10);
 }
 function badgeUrl(from, to) {
-    const top = 'https://raw.githubusercontent.com/kzkn/simplecov-resultset-diff-action/main/assets/';
+    const top = 'https://raw.githubusercontent.com/kzkn/simplecov-resultset-diff-action/main/assets';
     const diff = Math.abs(truncPercentage(to - from));
     if (diff === 0) {
         return `${top}/0.svg`;
