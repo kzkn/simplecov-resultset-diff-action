@@ -603,26 +603,57 @@ const github = __importStar(__webpack_require__(469));
 const core = __importStar(__webpack_require__(470));
 const markdown_table_1 = __importDefault(__webpack_require__(366));
 const simplecov_1 = __webpack_require__(982);
+const WORKSPACE = process.env.GITHUB_WORKSPACE;
 function doesPathExists(filepath) {
     if (!fs.existsSync(filepath)) {
         throw new Error(`${filepath} does not exist!`);
     }
 }
 function parseResultset(resultsetPath) {
-    const content = fs.readFileSync(path.resolve(process.env.GITHUB_WORKSPACE, resultsetPath));
+    const content = fs.readFileSync(path.resolve(WORKSPACE, resultsetPath));
     return JSON.parse(content.toString());
 }
+function truncPercentage(n) {
+    return Math.sign(n) * (Math.trunc(Math.abs(n) * 10) / 10);
+}
+function badgeUrl(from, to) {
+    const top = 'https://raw.githubusercontent.com/kzkn/simplecov-resultset-diff-action/main/assets/';
+    const diff = Math.abs(truncPercentage(to - from));
+    if (diff === 0) {
+        return `${top}/0.svg`;
+    }
+    else {
+        const dir = Math.sign(to - from) < 0 ? 'down' : 'up';
+        const n = Math.trunc(diff);
+        const m = (diff * 10) % 10;
+        return `${top}/${dir}/${n}/${n}.${m}.svg`;
+    }
+}
 function formatDiffItem({ from, to }) {
-    const f = from !== null ? `${String(from)}%` : '(not exist)';
-    const t = to !== null ? `${String(to)}%` : '(not exist)';
-    const d = from !== null && to !== null
-        ? ` (${Math.sign(to - from) < 0 ? '-' : '+'}${Math.abs(to - from)}%)`
-        : '';
-    return `${f} -> ${t}${d}`;
+    let p = '';
+    let badge = '';
+    if (to !== null) {
+        p = ` ${truncPercentage(to)}%`;
+    }
+    if (from !== null && to !== null) {
+        badge = ` ![${truncPercentage(to - from)}%](${badgeUrl(from, to)})`;
+    }
+    const created = from === null && to !== null ? 'NEW' : '';
+    const deleted = from !== null && to === null ? 'DELETE' : '';
+    return `${created}${deleted}${p}${badge}`;
+}
+function trimWorkspacePath(filename) {
+    const workspace = `${WORKSPACE}/`;
+    if (filename.startsWith(workspace)) {
+        return filename.slice(workspace.length);
+    }
+    else {
+        return filename;
+    }
 }
 function formatDiff(diff) {
     return [
-        diff.filename,
+        trimWorkspacePath(diff.filename),
         formatDiffItem(diff.lines),
         formatDiffItem(diff.branches)
     ];
@@ -648,8 +679,6 @@ function run() {
                 base: new simplecov_1.Coverage(resultsets.base),
                 head: new simplecov_1.Coverage(resultsets.head)
             };
-            coverages.base.trimWorkspacePath(process.env.GITHUB_WORKSPACE);
-            coverages.head.trimWorkspacePath(process.env.GITHUB_WORKSPACE);
             const diff = simplecov_1.getCoverageDiff(coverages.base, coverages.head);
             let content;
             if (diff.length === 0) {
@@ -6439,13 +6468,6 @@ class Coverage {
                 lines: linesCoverage(coverage.lines),
                 branches: branchesCoverages(coverage.branches)
             });
-        }
-    }
-    trimWorkspacePath(workspacePath) {
-        for (const fileCov of this.files) {
-            if (fileCov.filename.startsWith(workspacePath)) {
-                fileCov.filename = fileCov.filename.slice(workspacePath.length);
-            }
         }
     }
     filesMap() {
