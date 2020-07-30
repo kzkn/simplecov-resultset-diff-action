@@ -10,6 +10,8 @@ import {
   FileCoverageDiff
 } from './simplecov'
 
+const WORKSPACE: string = process.env.GITHUB_WORKSPACE!
+
 function doesPathExists(filepath: string): void {
   if (!fs.existsSync(filepath)) {
     throw new Error(`${filepath} does not exist!`)
@@ -18,7 +20,7 @@ function doesPathExists(filepath: string): void {
 
 function parseResultset(resultsetPath: string): ResultSet {
   const content = fs.readFileSync(
-    path.resolve(process.env.GITHUB_WORKSPACE!, resultsetPath)
+    path.resolve(WORKSPACE, resultsetPath)
   )
   return JSON.parse(content.toString()) as ResultSet
 }
@@ -39,9 +41,18 @@ function formatDiffItem({
   return `${f} -> ${t}${d}`
 }
 
+function trimWorkspacePath(filename: string): string {
+  const workspace = `${WORKSPACE}/`
+  if (filename.startsWith(workspace)) {
+    return filename.slice(workspace.length)
+  } else {
+    return filename
+  }
+}
+
 function formatDiff(diff: FileCoverageDiff): [string, string, string] {
   return [
-    diff.filename,
+    trimWorkspacePath(diff.filename),
     formatDiffItem(diff.lines),
     formatDiffItem(diff.branches)
   ]
@@ -71,9 +82,6 @@ async function run(): Promise<void> {
       base: new Coverage(resultsets.base),
       head: new Coverage(resultsets.head)
     }
-
-    coverages.base.trimWorkspacePath(process.env.GITHUB_WORKSPACE!)
-    coverages.head.trimWorkspacePath(process.env.GITHUB_WORKSPACE!)
 
     const diff = getCoverageDiff(coverages.base, coverages.head)
 

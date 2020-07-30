@@ -81,14 +81,6 @@ export class Coverage {
     }
   }
 
-  trimWorkspacePath(workspacePath: string): void {
-    for (const fileCov of this.files) {
-      if (fileCov.filename.startsWith(workspacePath)) {
-        fileCov.filename = fileCov.filename.slice(workspacePath.length)
-      }
-    }
-  }
-
   filesMap(): Map<string, FileCoverage> {
     const map = new Map<string, FileCoverage>()
     for (const fileCov of this.files) {
