@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kzkn/simplecov-resultset-diff-action.git"
+    "url": "git+https://github.com/DFE-Digital/simplecov-resultset-diff-action.git"
   },
   "keywords": [
     "actions",
@@ -23,9 +23,12 @@
     "simplecov"
   ],
   "author": "Kazuki Nishikawa",
+  "contributors": [
+    "Steve Laing"
+  ],
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.4",
+    "@actions/core": "^1.6.0",
     "@actions/github": "^4.0.0",
     "markdown-table": "^2.0.0"
   },
