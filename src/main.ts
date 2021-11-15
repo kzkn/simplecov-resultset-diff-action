@@ -115,8 +115,11 @@ async function run(): Promise<void> {
       ])
     }
 
-    const message = `## Coverage difference
+    const message = `<details>
+<summary>Coverage difference</summary>
+
 ${content}
+</details>
 `
 
     /**
@@ -137,7 +140,7 @@ ${content}
       issue_number: pullRequestId,
       body: message
     })
-  } catch (error) {
+  } catch (error: any) {
     core.setFailed(error.message)
   }
 }
