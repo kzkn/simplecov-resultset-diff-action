@@ -1,4 +1,4 @@
-name: 'SimpleCov resultset difference'
+name: 'SimpleCov resultset diff'
 description: 'Creates a comment in the pull-request comparing two SimpleCov resultset files.'
 author: Kazuki Nishikawa
 inputs:
