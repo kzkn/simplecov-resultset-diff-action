@@ -69,15 +69,15 @@ export class Coverage {
   files: FileCoverage[]
 
   constructor(resultset: ResultSet) {
-    const coverages = resultset['RSpec']['coverage']
     this.files = []
-    for (const filename of Object.keys(coverages)) {
-      const coverage = coverages[filename]
-      this.files.push({
-        filename,
-        lines: linesCoverage(coverage.lines),
-        branches: branchesCoverages(coverage.branches)
-      })
+    for (const coverages of Object.values(resultset)) {
+      for (const [filename, coverage] of Object.entries(coverages['coverage'])) {        
+        this.files.push({
+          filename,
+          lines: linesCoverage(coverage.lines),
+          branches: branchesCoverages(coverage.branches)
+        })
+      }
     }
   }
 

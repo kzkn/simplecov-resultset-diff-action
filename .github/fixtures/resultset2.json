@@ -64,7 +64,12 @@
             "[:then, 8, 11, 4, 11, 28]": 0
           }
         }
-      },
+      }    
+    },
+    "timestamp": 1595577079
+  },
+  "Minitest": {
+    "coverage": {     
       "qux.rb": {
         "lines": [
           1,
