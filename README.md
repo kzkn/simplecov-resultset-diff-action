@@ -1,3 +1,15 @@
+# Fork!!!
+
+This is a fork of https://github.com/kzkn/simplecov-resultset-diff-action and you should consider using that one instead.
+
+From this fork, we are creating pull requests to kzkn and you can see them here: https://github.com/kzkn/simplecov-resultset-diff-action/pulls/pupeno
+
+These pull requests are also merged in https://github.com/flexpointtech/simplecov-resultset-diff-action so we can take advantage of it in our own software.
+
+If you are considering using this fork, you can see the diff with kzkn's on https://github.com/kzkn/simplecov-resultset-diff-action/compare/main...flexpointtech:simplecov-resultset-diff-action:main
+
+It is not the intention of this fork to become a competitor, but just to contribute to kzkn's (but hopefully kzkn's is well maintained).
+
 # SimpleCov Resultset Diff
 
 Creates a comment inside your Pull-Request with the difference between two SimpleCov resultset files.
