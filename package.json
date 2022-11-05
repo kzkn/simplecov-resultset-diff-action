@@ -30,8 +30,8 @@
     "markdown-table": "^3.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.7",
-    "@types/markdown-table": "^2.0.0",
+    "@types/jest": "^29.2.2",
+    "@types/markdown-table": "^3.0.0",
     "@types/node": "^18.11.9",
     "@typescript-eslint/parser": "^5.42.0",
     "@zeit/ncc": "^0.22.3",
