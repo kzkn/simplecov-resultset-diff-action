@@ -124,14 +124,14 @@ You can use the cached resultset file for comparison. To cache the resultset fil
         ref: ${{ github.base_ref }}
 
     - id: base-ref-commit
-      run: echo "::set-output name=revision::`git rev-parse HEAD`"
+      run: echo "revision=`git rev-parse HEAD`" >> $GITHUB_ENV
 
     - name: simplecov resultset cache
       id: simplecov-resultset
       uses:  actions/cache@v2
       with:
         path: coverage/.resultset.json
-        key: simplecov-resultset-${{ steps.base-ref-commit.outputs.revision }}
+        key: simplecov-resultset-${{ env.revision }}
 
     - uses: ruby/setup-ruby@v1
       if: steps.simplecov-resultset.outputs.cache-hit != 'true'
