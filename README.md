@@ -4,6 +4,26 @@ Creates a comment inside your Pull-Request with the difference between two Simpl
 
 ![Comment demo](./docs/splash.png)
 
+## Setup
+
+### SimpleCov configuration
+
+Ensure you have [SimpleCov](https://github.com/simplecov-ruby/simplecov) setup in your test framework.
+You'll also need to [configure SimpleCov](https://github.com/simplecov-ruby/simplecov#configuring-simplecov) to use the [branch coverage](https://github.com/simplecov-ruby/simplecov#branch-coverage-ruby--25) strategy:
+
+This code will need to be on your your pull-request head branch _and_ your base branch, so it's recommended that you first merge this change before adding this action to your project.
+
+### Resultset available to git (optional)
+
+If you ensure your `.gitignore` file is not ignoring the `.resultset.json` file, you can skip running your test twice and just use the resultset file from the base branch.
+
+Example:
+```.gitignore
+# ignore simplecov assets, but not the resultset
+my-app/coverage/**/*
+!my-app/coverage/.resultset.json
+```
+
 ## Usage
 
 To use this Github action, in your steps you may have:
@@ -39,7 +59,7 @@ jobs:
     name: 'Build head'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
@@ -52,10 +72,10 @@ Then we will use the Github Actions feature called "[artifacts](https://help.git
 ```yml
     - name: Upload coverage report
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: head-result
-        path: coverage/.resultset.json
+        path: ./**/coverage/.resultset.json
 ```
 
 Now you can do the exact same thing, but for the base branch. Note the checkout step!
@@ -65,7 +85,7 @@ Now you can do the exact same thing, but for the base branch. Note the checkout 
     name: 'Build base'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         ## Here we do not checkout the current branch, but we checkout the base branch.
         ref: ${{ github.base_ref }}
@@ -76,10 +96,10 @@ Now you can do the exact same thing, but for the base branch. Note the checkout 
       run: bundle exec rspec
     - name: Upload coverage report
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: base-result
-        path: coverage/.resultset.json
+        path: ./**/coverage/.resultset.json
 ```
 
 Now, in a new job we can retrieve both of our saved resultset from the artifacts and use this action to compare them.
@@ -92,14 +112,16 @@ Now, in a new job we can retrieve both of our saved resultset from the artifacts
 
     steps:
     - name: Download base artifact
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: base-result
+        path: ./base-result
 
     - name: Download head artifact
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: head-result
+        path: ./head-result
 
     - uses: kzkn/simplecov-resultset-diff-action@v1
       with:
@@ -109,6 +131,58 @@ Now, in a new job we can retrieve both of our saved resultset from the artifacts
 ```
 
 That's it! When the compare job will be executed, it will post a comment in the current pull-request with the difference between the two resultset files.
+
+## Using the uploaded .resultset.json from the base branch
+
+If your base branch already has a `.resultset.json` because you [made it available to git](#resultset-available-to-git-optional), you can skip running your test twice and just use the resultset file from the base branch.
+
+Follow the same steps to run your tests on the head branch and upload the resultset file as an artifact.
+Then instead of running your tests on the base branch, just locate and use the `.resultset.json` file:
+
+> NOTE: update the `check_for_resultset` step to match your project's name and file structure
+
+```yml
+  # previous jobs are the same as above: run your tests on the head branch and upload the resultset file as an artifact
+
+  compare:
+    name: Compare Coverage
+    needs: build-head
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Base branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Download head artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: head-result
+          path: ./head-result
+
+      # fail quietly if there is no .resultset.json file found on the base branch
+      - name: Check for resultset on base branch
+        id: check_for_resultset
+        run: |
+          if [ ! -f "./my-app/coverage/.resultset.json" ]; then
+            echo "RESULTSET_FOUND=no" >> $GITHUB_OUTPUT
+            echo "::warning::No ./my-app/coverage/.resultset.json found on main branch"
+          else
+            echo "RESULTSET_FOUND=yes" >> $GITHUB_OUTPUT
+            echo "::notice::Found ./my-app/coverage/.resultset.json on main branch"
+          fi
+
+      - uses: kzkn/simplecov-resultset-diff-action@v1
+        # this should only run if there is a resultset on the main branch
+        env:
+          RESULTSET_FOUND: ${{ steps.check_for_resultset.outputs.RESULTSET_FOUND }}
+        if: env.RESULTSET_FOUND == 'yes'
+        with:
+          # we use the resultset from the base branch without having to re-run the tests to generate it
+          base-resultset-path: ./my-app/coverage/.resultset.json
+          head-resultset-path: ./head-result/.resultset.json
+          token: ${{ secrets.GITHUB_TOKEN }}
+```
 
 ## Cache .resultset.json
 
@@ -144,10 +218,10 @@ You can use the cached resultset file for comparison. To cache the resultset fil
 
     - name: Upload coverage report
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: base-result
-        path: coverage/.resultset.json
+        path: ./**/coverage/.resultset.json
 ```
 
 ## License
